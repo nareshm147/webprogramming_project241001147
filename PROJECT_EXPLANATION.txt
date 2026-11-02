@@ -1,0 +1,187 @@
+================================================================================
+ELEMENTA — INTERACTIVE PERIODIC TABLE
+My Project Documentation & Code Walkthrough (Student Guide)
+================================================================================
+
+Hey! This is my write-up explaining how I built "Elementa" from scratch, how all 
+the parts work together, and specifically how the JavaScript logic handles the 
+data, filters, and rendering. I wrote this so anyone (or myself during a viva / 
+demo) can easily understand and walk through the code step-by-step.
+
+
+--------------------------------------------------------------------------------
+1. THE CORE CONCEPT & DESIGN GOAL
+--------------------------------------------------------------------------------
+Most periodic table websites online look either like an ancient 90s textbook or 
+an over-the-top cyberpunk dashboard with glowing neon gradients. 
+
+I wanted something different: an editorial, archival look inspired by printed 
+science books, vintage encyclopedia plates, and modern museum exhibitions. 
+
+Key design choices I made:
+- Warm off-white paper background (#F5F2EA) in light mode.
+- Dark charcoal text (#242720) for high legibility and print-like feel.
+- Muted terracotta (#C46B4F) as the primary highlight color.
+- Subtle, earthy category colors (ochre, burnt sienna, pine green, slate blue) 
+  instead of radioactive neon colors.
+- Clean typography using Google Fonts: "Fraunces" (an editorial serif), 
+  "Plus Jakarta Sans" (clean body text), and "JetBrains Mono" (for numbers & data).
+- Pure Vanilla Stack: Zero libraries, zero NPM packages, zero frameworks. Just 
+  clean HTML, CSS, and plain JavaScript.
+
+
+--------------------------------------------------------------------------------
+2. FILE STRUCTURE (THE 3-FILE ARCHITECTURE)
+--------------------------------------------------------------------------------
+I strictly kept the project to 3 clean files:
+
+1. index.html  -> Semantic skeleton: Header, Search/Filters, Grid Container, 
+                 and the Specimen Modal Dialog.
+2. style.css   -> Design tokens (CSS variables), CSS Grid definitions, 
+                 responsive rules, light/dark themes, and animations.
+3. script.js   -> The brain of the project: contains the full 118-element dataset, 
+                 DOM generation, real-time search, filtering, and modal controls.
+
+
+--------------------------------------------------------------------------------
+3. HOW THE JAVASCRIPT ACTUALLY WORKS (STEP-BY-STEP)
+--------------------------------------------------------------------------------
+Here is the complete breakdown of what is happening inside `script.js`:
+
+A. The Data Structure (`const elements = [...]`):
+   Instead of hardcoding 118 `<div class="element">` blocks in index.html (which 
+   would be a nightmare to maintain), I stored all 118 elements in a single 
+   JavaScript array of objects. 
+   
+   Each element object contains:
+   - number: Atomic number (1 to 118)
+   - symbol: Chemical symbol ('H', 'He', 'Au', etc.)
+   - name: Full English name ('Hydrogen', 'Gold', etc.)
+   - atomicMass: Standard IUPAC atomic mass
+   - category: Machine-friendly slug (e.g. 'alkali-metal', 'noble-gas')
+   - period & group: Periodic position (1-7, 1-18)
+   - gridRow & gridCol: Exact CSS Grid coordinates
+   - phase: State of matter at STP ('Gas', 'Liquid', 'Solid', 'Unknown')
+   - electronConfig: Subshell notation (e.g., '[Xe] 4f¹⁴ 5d¹⁰ 6s¹')
+   - meltingPoint, boilingPoint, density, electronegativity: Physical data
+   - discoveredBy: Historical discoverer & year
+   - origin: Etymology / where the element's name comes from
+   - summary: A concise 1-2 sentence real-world scientific significance/use.
+
+B. Generating the Periodic Table Dynamically (`renderPeriodicTable()`):
+   When the page loads, `renderPeriodicTable()` runs:
+   1. It clears the grid container `#periodic-grid`.
+   2. It injects the series placeholder buttons for Lanthanides (57–71) in Row 6, 
+      Col 3 and Actinides (89–103) in Row 7, Col 3.
+   3. It loops through the `elements` array using `elements.forEach(...)`.
+   4. For each element:
+      - It calls `document.createElement('button')` to make a tile.
+      - Sets `tile.style.gridRow = el.gridRow` and `tile.style.gridColumn = el.gridCol`.
+        This is why CSS Grid places every single tile in its exact textbook position 
+        automatically!
+      - Sets custom `data-*` attributes (`data-number`, `data-symbol`, `data-name`, 
+        `data-category`) so we can search and filter super fast later.
+      - Adds a click event listener that calls `openElementDetail(el.number)`.
+      - Appends the tile into the grid.
+
+C. Search Logic (`applyFiltersAndSearch()`):
+   I wanted the search to be fast and forgiving. You can search by:
+   - Full name (e.g., "Gold" or "carbon")
+   - Symbol (e.g., "Au" or "fe")
+   - Atomic number (e.g., "79" or "6")
+
+   How it works under the hood:
+   - As you type in the search bar, the `input` event listener fires.
+   - It grabs `e.target.value.toLowerCase().trim()`.
+   - It queries all `.element-tile` DOM nodes and checks if `tile.dataset.name`, 
+     `tile.dataset.symbol`, or `tile.dataset.number` matches.
+   - If it matches: it removes the `.dimmed` class and adds `.highlighted`.
+   - If it doesn't match: it adds the `.dimmed` class (which sets opacity to 0.16 
+     and grays it out).
+   - It also updates the counter badge showing how many elements are currently visible.
+
+D. Category Filters (`handleCategoryClick()`):
+   Along the top, there are 10 category pills (Alkali Metals, Transition Metals, 
+   Noble Gases, etc.).
+   - Clicking a pill sets `activeCategoryFilter = catKey`.
+   - Clicking the active pill again toggles it off (sets it back to `null`).
+   - The same `applyFiltersAndSearch()` function runs, combining the active search 
+     query AND the active category filter at the same time.
+
+E. The Specimen Detail Modal (`openElementDetail()`):
+   Clicking any tile opens an archival specimen card overlay:
+   - It finds the element in the array using `elements.find(item => item.number === num)`.
+   - Populates the modal's DOM elements (name, symbol, electron configuration, 
+     melting point, boiling point, density, origin story, and summary).
+   - Removes `.hidden` on `#detail-modal` and prevents body scrolling.
+   - Navigation: inside the modal, you can click `‹` (previous) or `›` (next) to 
+     walk through elements 1 through 118 without closing the modal.
+   - Keyboard support: pressing `Escape` closes it, while `ArrowLeft` / `ArrowRight` 
+     navigates elements!
+
+F. "Discover an element" (Random Picker):
+   A small button at the top picks a random integer:
+   `const randomIndex = Math.floor(Math.random() * elements.length);`
+   Then it immediately opens that element's detail modal.
+
+G. Theme Toggle (Light / Dark Mode):
+   - By default, it's in light editorial mode (`[data-theme="light"]`).
+   - Clicking the theme button toggles the `data-theme` attribute on `<html>` between 
+     'light' and 'dark'.
+   - It stores the preference in `localStorage.setItem('elementa-theme', nextTheme)` 
+     so when you refresh the page or return tomorrow, your theme choice is remembered!
+
+
+--------------------------------------------------------------------------------
+4. HOW CSS GRID HANDLES THE LAYOUT
+--------------------------------------------------------------------------------
+The periodic table is notoriously tricky to format on the web because of the 
+blank spaces in periods 1, 2, and 3, plus the detached Lanthanide/Actinide rows.
+
+I solved this cleanly with CSS Grid:
+- `grid-template-columns: repeat(18, minmax(64px, 1fr));` -> exactly 18 groups.
+- `grid-template-rows: repeat(10, minmax(72px, auto));` -> 10 rows:
+  - Rows 1-7: Periods 1 through 7 of the main table.
+  - Row 8: A spacer divider line.
+  - Row 9: Lanthanides (La 57 to Lu 71 in columns 4 to 18, with a label in cols 1-3).
+  - Row 10: Actinides (Ac 89 to Lr 103 in columns 4 to 18, with a label in cols 1-3).
+
+On mobile/tablets, instead of squishing 18 columns into unreadable mush, I gave the 
+table container `overflow-x: auto` with smooth scrolling and a subtle scrollbar. 
+This keeps the scientific proportions perfectly legible on any screen size.
+
+
+--------------------------------------------------------------------------------
+5. QUICK VIVA / INTERVIEW CHEAT SHEET (QUESTIONS YOU MIGHT GET ASKED)
+--------------------------------------------------------------------------------
+Q: Why didn't you use React or Vue for this?
+A: For this project, Vanilla JS is faster, has zero bundle overhead, and doesn't 
+   need build tools like Webpack or Vite. It shows strong mastery of fundamental 
+   DOM manipulation, event delegation, and modern ES6+ JavaScript.
+
+Q: How do you position the elements in the periodic table?
+A: In `script.js`, each element object has explicit `gridRow` and `gridCol` properties. 
+   When dynamically generating the button elements, I apply them directly to 
+   `tile.style.gridRow` and `tile.style.gridColumn`, allowing CSS Grid to place 
+   all 118 items without empty placeholder divs.
+
+Q: How does the search and filter stay synchronized?
+A: I use a single unified function: `applyFiltersAndSearch()`. Both the search input 
+   listener and the category pill click listener route to this same function. It 
+   evaluates both conditions together (`matchesCategory && matchesQuery`), ensuring 
+   they never desynchronize.
+
+Q: How does the theme toggle remember the user's choice?
+A: Using the browser's `localStorage` API. On initial load, `initTheme()` checks 
+   `localStorage.getItem('elementa-theme')`. When toggled, it writes back to 
+   `localStorage.setItem('elementa-theme', nextTheme)`.
+
+Q: Is the site accessible?
+A: Yes. All element tiles are native `<button>` elements with descriptive `aria-label` 
+   attributes. The modal has `role="dialog"`, `aria-modal="true"`, and supports full 
+   keyboard navigation via `Escape` and arrow keys.
+
+
+================================================================================
+EOF — Elementa Project Documentation
+================================================================================

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Elementa is an editorial, interactive periodic table of the 118 chemical elements inspired by printed science books and modern museum archives.">
+  <title>ELEMENTA — An Interactive Guide to the Elements</title>
+
+  <!-- Google Fonts: Editorial Serif + Clean Sans + Technical Monospace -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header" id="site-header">
+    <div class="header-container">
+      <div class="brand">
+        <span class="catalog-badge">CATALOGUE DE NATURA · VOL. I</span>
+        <h1 class="site-title">ELEMENTA</h1>
+        <p class="site-subtitle">An interactive guide to the elements</p>
+      </div>
+
+      <div class="header-actions">
+        <button id="theme-toggle-btn" class="action-btn theme-toggle" type="button" aria-label="Toggle visual theme" title="Toggle Light / Dark exhibition theme">
+          <span class="theme-icon" aria-hidden="true">◐</span>
+          <span class="theme-label">Theme</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Introduction Section -->
+    <section class="intro-section" aria-labelledby="intro-heading">
+      <div class="intro-container">
+        <div class="intro-text">
+          <span class="sub-label">TAXONOMY OF MATTER</span>
+          <h2 id="intro-heading" class="intro-heading">118 ELEMENTS. ONE UNIVERSE.</h2>
+          <p class="intro-desc">
+            The periodic table organizes every known chemical element according to atomic number, electron configuration, and recurring chemical properties.
+          </p>
+        </div>
+
+        <div class="intro-quick-actions">
+          <button id="random-element-btn" class="primary-btn" type="button" title="Select a random element from the universe">
+            <span class="btn-icon" aria-hidden="true">✦</span>
+            <span>Discover an element</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Controls Bar -->
+    <section class="controls-section" aria-label="Search and filter controls">
+      <div class="controls-container">
+        <!-- Search Input -->
+        <div class="search-box">
+          <label for="search-input" class="visually-hidden">Search elements</label>
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input 
+            type="search" 
+            id="search-input" 
+            placeholder="Search by name, symbol, or atomic number (e.g., Gold, Au, 79)..." 
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button id="clear-search-btn" class="clear-search-btn hidden" type="button" aria-label="Clear search query" title="Clear search">
+            ✕
+          </button>
+        </div>
+
+        <!-- Status Summary -->
+        <div class="status-summary" id="status-summary" aria-live="polite">
+          <span class="count-badge" id="visible-count">118</span>
+          <span class="count-label">of 118 elements visible</span>
+          <button id="reset-all-filters-btn" class="reset-btn hidden" type="button">Reset filters</button>
+        </div>
+      </div>
+
+      <!-- Category Filter Legend -->
+      <nav class="categories-nav" aria-label="Element category filters">
+        <div class="categories-wrapper">
+          <span class="filter-label">CATEGORIES:</span>
+          <div class="category-pills" id="category-pills" role="toolbar" aria-label="Filter by chemical series">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+      </nav>
+    </section>
+
+    <!-- Periodic Table Viewport -->
+    <section class="table-section" aria-label="Periodic Table">
+      <div class="table-scroll-hint" id="table-scroll-hint" aria-hidden="true">
+        <span>← Scroll horizontally to inspect full table →</span>
+      </div>
+
+      <div class="table-viewport" id="table-viewport">
+        <!-- Group Column Numbers (1 to 18) -->
+        <div class="group-labels" aria-hidden="true">
+          <span class="group-col-label" style="grid-column: 1;">1</span>
+          <span class="group-col-label" style="grid-column: 2;">2</span>
+          <span class="group-col-label" style="grid-column: 3;">3</span>
+          <span class="group-col-label" style="grid-column: 4;">4</span>
+          <span class="group-col-label" style="grid-column: 5;">5</span>
+          <span class="group-col-label" style="grid-column: 6;">6</span>
+          <span class="group-col-label" style="grid-column: 7;">7</span>
+          <span class="group-col-label" style="grid-column: 8;">8</span>
+          <span class="group-col-label" style="grid-column: 9;">9</span>
+          <span class="group-col-label" style="grid-column: 10;">10</span>
+          <span class="group-col-label" style="grid-column: 11;">11</span>
+          <span class="group-col-label" style="grid-column: 12;">12</span>
+          <span class="group-col-label" style="grid-column: 13;">13</span>
+          <span class="group-col-label" style="grid-column: 14;">14</span>
+          <span class="group-col-label" style="grid-column: 15;">15</span>
+          <span class="group-col-label" style="grid-column: 16;">16</span>
+          <span class="group-col-label" style="grid-column: 17;">17</span>
+          <span class="group-col-label" style="grid-column: 18;">18</span>
+        </div>
+
+        <!-- The Periodic Table Grid -->
+        <div class="periodic-grid" id="periodic-grid" role="region" aria-label="118 Elements Table">
+          <!-- Main elements and series markers rendered dynamically via script.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Legend Summary Bar -->
+    <section class="legend-footer-section">
+      <div class="legend-footer-container">
+        <div class="legend-note">
+          <span class="note-bullet">§</span>
+          <span>Lanthanides (57–71) and Actinides (89–103) are displayed below the main matrix to preserve standard IUPAC proportions.</span>
+        </div>
+        <div class="standard-note">
+          <span>Standard atomic weights reflect IUPAC Commission on Isotopic Abundances and Atomic Weights.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Element Detail Specimen Modal -->
+  <div id="detail-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-element-name" aria-hidden="true">
+    <div class="modal-card" id="modal-card">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="specimen-tag">
+          <span class="specimen-id" id="modal-specimen-id">ELEMENT NO. 1</span>
+          <span class="specimen-category" id="modal-category-badge">REACTIVE NONMETAL</span>
+        </div>
+        <div class="modal-header-actions">
+          <button id="modal-prev-btn" class="nav-icon-btn" type="button" aria-label="Previous element" title="Previous element (← Left arrow)">‹</button>
+          <button id="modal-next-btn" class="nav-icon-btn" type="button" aria-label="Next element" title="Next element (→ Right arrow)">›</button>
+          <button id="modal-close-btn" class="close-btn" type="button" aria-label="Close element details" title="Close (Escape)">✕</button>
+        </div>
+      </div>
+
+      <!-- Specimen Hero Presentation -->
+      <div class="modal-hero">
+        <div class="hero-tile-preview" id="modal-hero-tile">
+          <span class="hero-atomic-number" id="modal-atomic-number">1</span>
+          <span class="hero-symbol" id="modal-symbol">H</span>
+          <span class="hero-mass" id="modal-atomic-mass">1.008 u</span>
+        </div>
+        <div class="hero-info">
+          <h3 class="hero-element-name" id="modal-element-name">Hydrogen</h3>
+          <p class="hero-latin-name" id="modal-latin-name">From Greek ‘hydro’ (water) and ‘genes’ (forming)</p>
+          <div class="hero-quick-meta">
+            <span class="meta-item"><strong id="modal-phase">Gas</strong> at STP</span>
+            <span class="meta-divider">·</span>
+            <span class="meta-item">Period <strong id="modal-period">1</strong></span>
+            <span class="meta-divider">·</span>
+            <span class="meta-item">Group <strong id="modal-group">1</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview / Description -->
+      <div class="modal-description-box">
+        <h4 class="section-label">OBSERVATION &amp; USES</h4>
+        <p class="element-description-text" id="modal-description">
+          The lightest and most abundant chemical substance in the universe, constituting roughly 75% of all baryonic mass.
+        </p>
+      </div>
+
+      <!-- Scientific Properties Grid -->
+      <div class="modal-properties-section">
+        <h4 class="section-label">PHYSICAL &amp; ATOMIC PROPERTIES</h4>
+        <dl class="properties-grid">
+          <div class="property-cell">
+            <dt class="property-label">Electron Configuration</dt>
+            <dd class="property-val mono" id="modal-electron-config">1s¹</dd>
+          </div>
+          <div class="property-cell">
+            <dt class="property-label">Electronegativity</dt>
+            <dd class="property-val mono" id="modal-electronegativity">2.20</dd>
+          </div>
+          <div class="property-cell">
+            <dt class="property-label">Melting Point</dt>
+            <dd class="property-val" id="modal-melting-point">13.99 K (-259.16 °C)</dd>
+          </div>
+          <div class="property-cell">
+            <dt class="property-label">Boiling Point</dt>
+            <dd class="property-val" id="modal-boiling-point">20.27 K (-252.88 °C)</dd>
+          </div>
+          <div class="property-cell">
+            <dt class="property-label">Density</dt>
+            <dd class="property-val" id="modal-density">0.08988 g/L</dd>
+          </div>
+          <div class="property-cell">
+            <dt class="property-label">Discovery &amp; History</dt>
+            <dd class="property-val" id="modal-discovery">Henry Cavendish (1766)</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <span class="modal-shortcut-hint">Use ← and → arrow keys to navigate · Esc to close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <span class="footer-title">ELEMENTA</span>
+        <span class="footer-sep">·</span>
+        <span>A tribute to Dmitri Mendeleev and modern chemical inquiry</span>
+      </div>
+      <div class="footer-right">
+        <span>Editorial science catalog · Pure HTML, CSS &amp; Vanilla JavaScript</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
